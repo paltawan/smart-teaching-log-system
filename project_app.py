@@ -5,6 +5,7 @@ import json
 import copy
 
 import streamlit as st
+from online_files import file_uploader as online_file_uploader
 from docx import Document
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml import OxmlElement
@@ -203,12 +204,15 @@ st.html("""
 """)
 
 with st.sidebar:
-    st.link_button(
-        "ไปยังระบบบันทึกหลังสอน",
-        "http://127.0.0.1:8501/",
-        icon=":material/swap_horiz:",
-        width="stretch",
-    )
+    if st.session_state.get("combined_app"):
+        st.page_link("app.py", label="ไปยังระบบบันทึกหลังสอน", icon=":material/swap_horiz:", width="stretch")
+    else:
+        st.link_button(
+            "ไปยังระบบบันทึกหลังสอน",
+            "http://127.0.0.1:8501/",
+            icon=":material/swap_horiz:",
+            width="stretch",
+        )
     st.divider()
     st.header("ตั้งค่าระบบ", icon=":material/settings:")
     st.subheader("เชื่อมต่อ Gemini")
@@ -223,9 +227,14 @@ with left:
     with st.container(border=True):
         st.subheader("1. เอกสารอ้างอิง", icon=":material/upload_file:")
         st.caption("แผนการสอนเป็นข้อมูลหลัก ส่วนโครงการสอนตัวอย่างช่วยกำหนดลำดับและรูปแบบ")
-        plan_file = st.file_uploader("แผนการสอน PDF", type="pdf")
-        reference_file = st.file_uploader("โครงการสอนตัวอย่าง PDF (ถ้ามี)", type="pdf")
-        template_file = st.file_uploader("แบบฟอร์มโครงการสอน .docx", type="docx")
+        if st.session_state.get("combined_app"):
+            plan_file = online_file_uploader("แผนการสอน PDF", ["pdf"], "project_plan")
+            reference_file = online_file_uploader("โครงการสอนตัวอย่าง PDF (ถ้ามี)", ["pdf"], "project_reference")
+            template_file = online_file_uploader("แบบฟอร์มโครงการสอน .docx", ["docx"], "project_template")
+        else:
+            plan_file = st.file_uploader("แผนการสอน PDF", type="pdf")
+            reference_file = st.file_uploader("โครงการสอนตัวอย่าง PDF (ถ้ามี)", type="pdf")
+            template_file = st.file_uploader("แบบฟอร์มโครงการสอน .docx", type="docx")
 with right:
     with st.container(border=True):
         st.subheader("2. ข้อมูลรายวิชา", icon=":material/school:")
@@ -266,7 +275,11 @@ if st.button("วิเคราะห์แผนการสอน", type="pri
                 st.session_state.pop("project_output", None)
             st.success("อ่านข้อมูลแล้ว กรุณาตรวจแก้ทุกแถวก่อนสร้างเอกสาร")
         except Exception as exc:
-            st.error(f"วิเคราะห์ไม่สำเร็จ: {exc}")
+            error_msg = str(exc)
+            if "403" in error_msg and "PERMISSION_DENIED" in error_msg:
+                st.error("⚠️ วิเคราะห์ไม่สำเร็จ: API Key ของคุณมีปัญหา หรือถูกระงับการใช้งาน โปรดสร้าง API Key ใหม่ที่ Google AI Studio และนำมาอัปเดตใหม่ครับ")
+            else:
+                st.error(f"วิเคราะห์ไม่สำเร็จ: {exc}")
 
 if "project_rows" in st.session_state:
     with st.container(border=True):

@@ -1,0 +1,9 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app.py project_app.py streamlit_app.py online_files.py ./
+COPY .streamlit ./.streamlit
+
+CMD ["sh", "-c", "exec streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port ${PORT:-80} --server.headless true"]

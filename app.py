@@ -1,4 +1,5 @@
 import streamlit as st
+from online_files import file_uploader as online_file_uploader
 import os
 import json
 import re
@@ -106,12 +107,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.link_button(
-        "ไปยังระบบโครงการสอน",
-        "http://127.0.0.1:8517/",
-        icon=":material/menu_book:",
-        width="stretch",
-    )
+    if st.session_state.get("combined_app"):
+        st.page_link("project_app.py", label="ไปยังระบบโครงการสอน", icon=":material/menu_book:", width="stretch")
+    else:
+        st.link_button(
+            "ไปยังระบบโครงการสอน",
+            "http://127.0.0.1:8517/",
+            icon=":material/menu_book:",
+            width="stretch",
+        )
 
 # ข้อมูลปฏิทินและแผนกวิชา
 THAI_MONTHS = [
@@ -166,8 +170,10 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📁 1. แบบฟอร์มและหลักสูตร")
-    tpl_file = st.file_uploader("📄 แนบแบบฟอร์มวิทยาลัย (template.docx):", type=["docx"])
-    uploaded_file = st.file_uploader("📚 แนบไฟล์โครงการสอน (PDF, Word, TXT, รูปภาพ):", type=["pdf", "docx", "txt", "png", "jpg", "jpeg"])
+    tpl_file = (online_file_uploader("📄 แนบแบบฟอร์มวิทยาลัย (template.docx):", ["docx"], "reflection_template")
+                if st.session_state.get("combined_app") else st.file_uploader("📄 แนบแบบฟอร์มวิทยาลัย (template.docx):", type=["docx"]))
+    uploaded_file = (online_file_uploader("📚 แนบไฟล์โครงการสอน (PDF, Word, TXT, รูปภาพ):", ["pdf", "docx", "txt", "png", "jpg", "jpeg"], "reflection_source")
+                     if st.session_state.get("combined_app") else st.file_uploader("📚 แนบไฟล์โครงการสอน (PDF, Word, TXT, รูปภาพ):", type=["pdf", "docx", "txt", "png", "jpg", "jpeg"]))
     
     st.markdown("---")
     st.markdown("🎯 **เลือกระดับชั้นและวุฒิการศึกษา:**")
@@ -549,7 +555,11 @@ if st.button(f"🚀 เริ่มสร้างเอกสารบันท
 
     except Exception as e:
         status_text.empty()
-        st.error(f"เกิดข้อผิดพลาด: {str(e)}")
+        error_msg = str(e)
+        if "403" in error_msg and "PERMISSION_DENIED" in error_msg:
+            st.error("⚠️ เกิดข้อผิดพลาด: API Key ของคุณมีปัญหา หรือถูกระงับการใช้งาน โปรดสร้าง API Key ใหม่ที่ Google AI Studio และนำมาอัปเดตใหม่ครับ")
+        else:
+            st.error(f"เกิดข้อผิดพลาด: {error_msg}")
 
 # กล่องข้อมูลลิขสิทธิ์และผู้พัฒนาระบบด้านล่างสุด
 st.markdown("""
