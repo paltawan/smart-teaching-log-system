@@ -209,7 +209,7 @@ with st.sidebar:
     else:
         st.link_button(
             "ไปยังระบบบันทึกหลังสอน",
-            "http://127.0.0.1:8501/",
+            "https://smart-teaching-log-system-3bcqd8atj7upyy3twdx7ed.streamlit.app/",
             icon=":material/swap_horiz:",
             width="stretch",
         )

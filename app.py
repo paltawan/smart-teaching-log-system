@@ -112,7 +112,7 @@ with st.sidebar:
     else:
         st.link_button(
             "ไปยังระบบโครงการสอน",
-            "http://127.0.0.1:8517/",
+            "https://smart-teaching-system-dirvxvxptluggud8c47kcj.streamlit.app/",
             icon=":material/menu_book:",
             width="stretch",
         )
