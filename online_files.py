@@ -59,8 +59,14 @@ class UploadedFile:
         return self._content
 
 
-def file_uploader(label, extensions, key):
+def file_uploader(label, extensions, key, download_url=None):
     st.write(label)
+    if download_url:
+        st.link_button(
+            "ดาวน์โหลด template.docx",
+            download_url,
+            icon=":material/download:",
+        )
     result = _file_input(
         key=key,
         data={

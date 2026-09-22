@@ -170,8 +170,22 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📁 1. แบบฟอร์มและหลักสูตร")
-    tpl_file = (online_file_uploader("📄 แนบแบบฟอร์มวิทยาลัย (template.docx):", ["docx"], "reflection_template")
-                if st.session_state.get("combined_app") else st.file_uploader("📄 แนบแบบฟอร์มวิทยาลัย (template.docx):", type=["docx"]))
+    template_url = "https://drive.usercontent.google.com/download?id=1_7h_Q-Pg7dI1-8svNeszL109kdW3v6ge&export=download&authuser=0&confirm=t&uuid=4c84a392-2465-4cc4-86e1-812303490a41&at=AMrWOn0mI6IA0rWvJKO4BDl-8T0h:1790068993628"
+    if st.session_state.get("combined_app"):
+        tpl_file = online_file_uploader(
+            "📄 แนบแบบฟอร์มวิทยาลัย (template.docx):",
+            ["docx"],
+            "reflection_template",
+            download_url=template_url,
+        )
+    else:
+        st.write("📄 แนบแบบฟอร์มวิทยาลัย (template.docx):")
+        st.link_button("ดาวน์โหลด template.docx", template_url, icon=":material/download:")
+        tpl_file = st.file_uploader(
+            "แนบแบบฟอร์มวิทยาลัย",
+            type=["docx"],
+            label_visibility="collapsed",
+        )
     uploaded_file = (online_file_uploader("📚 แนบไฟล์โครงการสอน (PDF, Word, TXT, รูปภาพ):", ["pdf", "docx", "txt", "png", "jpg", "jpeg"], "reflection_source")
                      if st.session_state.get("combined_app") else st.file_uploader("📚 แนบไฟล์โครงการสอน (PDF, Word, TXT, รูปภาพ):", type=["pdf", "docx", "txt", "png", "jpg", "jpeg"]))
     
